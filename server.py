@@ -3,7 +3,7 @@ import psycopg2
 
 app = Flask(__name__)
 
-# Update these with your own values
+
 DB_CONFIG = {
     "host": "10.171.2.112",
     "database": "groups",
