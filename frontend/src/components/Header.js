@@ -1,13 +1,22 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-const Header = () => {
+const Header = ({ showButtons = true }) => {
   return (
     <header>
-      <h1>Trust Circle</h1>
-      <nav>
-        <button onClick={() => window.location.href = 'login.html'}>Log In</button>
-        <button onClick={() => window.location.href = 'signup.html'}>Sign Up</button>
-      </nav>
+      <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <h1>Trust Circle</h1>
+      </Link>
+      {showButtons && (
+        <nav>
+          <Link to="/login">
+            <button>Log In</button>
+          </Link>
+          <Link to="/signup">
+            <button>Sign Up</button>
+          </Link>
+        </nav>
+      )}
     </header>
   );
 };

@@ -29,6 +29,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import LandingPage from './pages/LandingPage';
 import GroupPage from './pages/GroupPage';
+import LoginSignup from './pages/LoginSignup';
 
 function App() {
   return (
@@ -36,6 +37,8 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/group" element={<GroupPage />} />
+        <Route path="/login" element={<LoginSignup mode="login" />} />
+        <Route path="/signup" element={<LoginSignup mode="signup" />} />
       </Routes>
     </Router>
   );
