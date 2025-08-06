@@ -102,6 +102,21 @@ def create_group(group_name, group_members, group_balance,
     print(f"✅ Group '{group_name}' created with members: {valid_members}")
     print(f"🆔 Group Code: {group_code}")
 
+def get_all_groups():
+    cur = cc.cursor()
+    cur.execute('SELECT * FROM "GROUPS"')
+    rows = cur.fetchall()
+    col_names = [col[0] for col in cur.description]
+
+    print("📋 All Groups:")
+    for row in rows:
+        print("-" * 60)
+        for col, val in zip(col_names, row):
+            print(f"{col}: {val}")
+    if not rows:
+        print("⚠️ No groups found.")
+    cur.close()
+
 if __name__ == "__main__":
     # Uncomment this once to create the table, then keep it commented
     # create_groups_table()
@@ -121,3 +136,5 @@ if __name__ == "__main__":
         monthly_deposit_date="2025-08-10",
         group_goal=20000.0
     )
+
+    get_all_groups()
