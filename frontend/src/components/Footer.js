@@ -5,7 +5,10 @@ const Footer = () => {
     <footer>
       <div className="footer-content">
         <div className="footer-brand">
-          <h3>Trust Circle</h3>
+          <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+            <img src="../images/white_logo.png" alt="Logo" className="header-logo"/>
+            <h3>Trust Circle</h3>
+          </div>
           <p>Building community through trusted lending circles.</p>
         </div>
         

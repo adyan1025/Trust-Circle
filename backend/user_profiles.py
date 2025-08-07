@@ -31,7 +31,7 @@ def get_all_users():
 # Get user by email
 def get_user_by_email(email):
     cur = cc.cursor()
-    cur.execute('SELECT * FROM "user_profiles" WHERE email = ?', (email,))
+    cur.execute('SELECT * FROM USER_PROFILES WHERE email = ?', (email,))
     user = cur.fetchone()
     cur.close()
     return user
@@ -40,7 +40,7 @@ def get_user_by_email(email):
 def update_wallet(email, new_balance):
     cur = cc.cursor()
     cur.execute("""
-        UPDATE "user_profiles" SET wallet_balance = ? WHERE email = ?
+        UPDATE USER_PROFILES SET wallet_balance = ? WHERE email = ?
     """, (new_balance, email))
     cc.commit()
     cur.close()
@@ -48,7 +48,7 @@ def update_wallet(email, new_balance):
 # Delete user by email
 def delete_user(email):
     cur = cc.cursor()
-    cur.execute('DELETE FROM "user_profiles" WHERE email = ?', (email,))
+    cur.execute('DELETE FROM USER_PROFILES WHERE email = ?', (email,))
     cc.commit()
     cur.close()
 

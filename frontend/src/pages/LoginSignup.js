@@ -20,11 +20,13 @@ const LoginSignup = ({ mode = 'login' }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = mode === 'login' ? 'http://localhost:3000/login' : 'http://localhost:3000/signup';
+
+    // const BASE_URL = 'https://trust-circle.cfapps.us10-001.hana.ondemand.com';
+    // const url = mode === 'login' ? `${BASE_URL}/login` : `${BASE_URL}/signup`;
 
     const payload = mode === 'login'
       ? { email: formData.email, password: formData.password }
-              : {
+      : {
           firstName: formData.firstName,
           lastName: formData.lastName,
           dob: formData.dob,
@@ -35,13 +37,23 @@ const LoginSignup = ({ mode = 'login' }) => {
         };
 
     try {
-      const response = await fetch(url, {
+      const response = await fetch('/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
+      const contentType = response.headers.get('content-type');
+
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Expected JSON, got:', text);
+        alert('Server returned unexpected response. Check console for details.');
+        return;
+      }
+
       const result = await response.json();
+
       if (response.ok) {
         if (mode === 'login') {
           localStorage.setItem('userId', result.userID);
@@ -53,7 +65,7 @@ const LoginSignup = ({ mode = 'login' }) => {
         alert(result.message || `${mode} failed`);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Fetch failed:', err);
       alert('Something went wrong.');
     }
   };

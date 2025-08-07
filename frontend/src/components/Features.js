@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
+
 const Feature = ({ icon, title, description }) => {
   const featureRef = useRef(null);
   
@@ -49,8 +50,8 @@ const Features = () => {
         />
         <Feature 
           icon="💰"
-          title="Low Interest"
-          description="Better rates than traditional loans from banks"
+          title="No Interest"
+          description="Absolutely zero interests on loans."
         />
         <Feature 
           icon="⚡"
