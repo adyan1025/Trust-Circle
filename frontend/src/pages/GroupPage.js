@@ -286,15 +286,27 @@ const GroupPage = () => {
 
   const handlePayment = (amount) => {
     alert(`You paid $${amount.toFixed(2)} to ${groupData.name}`);
+  
     const newTransaction = {
       name: getUserDisplayName(userEmail),
       amount: `$${amount.toFixed(0)}`,
       date: formatDate(new Date())
     };
+  
     const updatedGroups = [...allGroups];
-    updatedGroups[currentGroupIndex].transactions.unshift(newTransaction);
+    const currentGroup = { ...updatedGroups[currentGroupIndex] };
+  
+    // Parse current balance and add new amount
+    const currentBalance = parseFloat(currentGroup.groupBalance.replace(/\$|,/g, '')) || 0;
+    const newBalance = currentBalance + amount;
+  
+    currentGroup.groupBalance = `$${newBalance.toLocaleString()}`;
+    currentGroup.transactions = [newTransaction, ...currentGroup.transactions];
+    updatedGroups[currentGroupIndex] = currentGroup;
+  
     setAllGroups(updatedGroups);
   };
+  
 
   const [firstName, lastName] = userEmail?.split('@')[0]?.split('.') ?? ['User', ''];
 
