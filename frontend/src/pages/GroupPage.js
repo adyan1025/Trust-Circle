@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
+import GroupsHeader from '../components/GroupsHeader';
 import Footer from '../components/Footer';
 import GridBackground from '../components/GridBackground';
 import LoanRequestTable from '../components/LoanRequestTable';
@@ -14,6 +14,82 @@ import 'swiper/css/effect-coverflow';
 import 'swiper/css/navigation';
 import ChatbotWidget from '../components/ChatbotWidget';
 import TransactionHistory from '../components/TransactionHistory';
+import { useNavigate } from 'react-router-dom';
+
+const MANUAL_MODE = false;
+
+// Test Users
+const USER_GROUPS = {
+  'mustafa.bookwala@sap.com': [
+    {
+      name: 'Japan Trip',
+      poolSize: '$6,000',
+      groupBalance: '$0',
+      members: ['MB', 'LL', 'AC'],
+      transactions: [],
+      nextPaymentDue: 'August 8, 2025'
+    }
+  ],
+  'lucas.loepke@sap.com': [
+    {
+      name: 'Japan Trip',
+      poolSize: '$6,000',
+      groupBalance: '$100',
+      members: ['MB', 'LL', 'AC'],
+      transactions: [
+        { name: 'Mustafa', amount: '$100', date: 'August 8, 2025' }
+      ],
+      nextPaymentDue: 'August 8, 2025'
+    },
+    {
+      name: 'Rent',
+      poolSize: '$3,000',
+      groupBalance: '$1,500',
+      members: ['LL', 'NC', 'AC'],
+      transactions: [
+        { name: 'Lucas', amount: '$500', date: 'August 7, 2025' },
+        { name: 'Nyle', amount: '$1000', date: 'August 6, 2025' }
+      ],
+      nextPaymentDue: 'August 20, 2025'
+    }
+  ],
+  'adyan.chowdhury@sap.com': [
+    {
+      name: 'Japan Trip',
+      poolSize: '$6,000',
+      groupBalance: '$300',
+      members: ['MB', 'LL', 'AC'],
+      transactions: [
+        { name: 'Lucas', amount: '$200', date: 'August 8, 2025' },
+        { name: 'Mustafa', amount: '$100', date: 'August 8, 2025' }
+      ],
+      nextPaymentDue: 'August 8, 2025'
+    },
+    {
+      name: 'Rent',
+      poolSize: '$3,000',
+      groupBalance: '$1,500',
+      members: ['LL', 'NC', 'AC'],
+      transactions: [
+        { name: 'Lucas', amount: '$500', date: 'August 7, 2025' },
+        { name: 'Nyle', amount: '$1000', date: 'August 6, 2025' }
+      ],
+      nextPaymentDue: 'August 20, 2025'
+    },
+    {
+      name: 'Food Truck',
+      poolSize: '$14,000',
+      groupBalance: '$6,000',
+      members: ['NC', 'AC'],
+      transactions: [
+        { name: 'Nyle', amount: '$500', date: 'July 1, 2025' },
+        { name: 'Adyan', amount: '$300', date: 'July 5, 2025' }
+      ],
+      isLate: true,
+      nextPaymentDue: 'August 1, 2025'
+    }
+  ]
+};
 
 const GroupPage = () => {
   const [hidden, setHidden] = useState(false);
@@ -23,6 +99,9 @@ const GroupPage = () => {
   const [hasInitialized, setHasInitialized] = useState(false);
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
   const [showLatePopup, setShowLatePopup] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const [allGroups, setAllGroups] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [formData, setFormData] = useState({
     reason: '',
@@ -30,54 +109,71 @@ const GroupPage = () => {
     date: formatDate(new Date())
   });
 
-  const [allGroups, setAllGroups] = useState([
-    {
-      name: 'Roomate Rent',
-      poolSize: '$7,500',
-      groupBalance: '$5,000',
-      members: ['MB', 'AJ', 'NL', 'HC', 'HW'],
-      transactions: [
-        { name: 'Alex Johnson', amount: '$500', date: 'May 1, 2025' },
-        { name: 'Sarah Lee', amount: '$300', date: 'May 3, 2025' },
-      ],
-      nextPaymentDue: 'September 15, 2025',
-    },
-    {
-      name: 'Vacation Trip',
-      poolSize: '$3,200',
-      groupBalance: '$2,300',
-      members: ['AD', 'BC', 'CD'],
-      transactions: [
-        { name: 'Chris P', amount: '$200', date: 'April 28, 2025' },
-      ],
-      nextPaymentDue: 'August 28, 2025',
-    },
-    {
-      name: 'Startup Fund',
-      poolSize: '$10,000',
-      groupBalance: '$8,000',
-      members: ['AA', 'BB', 'CC', 'DD'],
-      transactions: [
-        { name: 'Alice W', amount: '$1000', date: 'May 2, 2025' },
-        { name: 'Bob K', amount: '$500', date: 'May 4, 2025' },
-      ],
-      isLate: true,
-      nextPaymentDue: 'May 10, 2025',
-    },
-  ]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   const [loanRequests, setLoanRequests] = useState([
     {
-      name: 'Alex Johnson',
+      name: 'Evan',
       amount: '$500',
-      reason: 'Medical Expense',
-      date: 'May 1, 2025',
+      reason: 'Happy Hour',
+      date: 'August 8, 2025',
       status: '3/5',
       requiresAction: true
     }
   ]);
 
-  const groupData = allGroups[currentGroupIndex];
+  // Get user's first name for display
+  const getUserDisplayName = (email) => {
+    const nameMap = {
+      'mustafa.bookwala@sap.com': 'Mustafa',
+      'adyan.chowdhury@sap.com': 'Adyan',
+      'lucas.loepke@sap.com': 'Lucas',
+      'nyle.coleman@sap.com': 'Nyle'
+    };
+    return nameMap[email] || 'User';
+  };
+
+  useEffect(() => {
+    // Get user email from localStorage
+    const email = localStorage.getItem('userEmail');
+    setUserEmail(email);
+    
+    // Set groups based on user email
+    if (email && USER_GROUPS[email]) {
+      setAllGroups(USER_GROUPS[email]);
+    } else {
+      // Default groups for unknown users
+      setAllGroups([
+        {
+          name: 'Default Group',
+          poolSize: '$5,000',
+          groupBalance: '$3,000',
+          members: ['DG', 'MB', 'AD'],
+          transactions: [
+            { name: 'Default User', amount: '$200', date: 'May 1, 2025' },
+          ],
+          nextPaymentDue: 'June 15, 2025',
+        }
+      ]);
+    }
+    setIsLoading(false);
+  }, []);
+
+  const groupData = allGroups[currentGroupIndex] || {
+    name: 'Loading...',
+    poolSize: '$0',
+    groupBalance: '$0',
+    members: [],
+    transactions: [],
+    nextPaymentDue: 'Loading...'
+  };
 
   useEffect(() => {
     setTimeout(() => {
@@ -120,7 +216,7 @@ const GroupPage = () => {
     const { reason, amount } = formData;
     if (reason && amount) {
       const newRequest = {
-        name: 'You',
+        name: getUserDisplayName(userEmail),
         amount: `$${amount}`,
         reason,
         date: formData.date,
@@ -191,8 +287,8 @@ const GroupPage = () => {
   const handlePayment = (amount) => {
     alert(`You paid $${amount.toFixed(2)} to ${groupData.name}`);
     const newTransaction = {
-      name: 'You',
-      amount: `$${amount.toFixed(2)}`,
+      name: getUserDisplayName(userEmail),
+      amount: `$${amount.toFixed(0)}`,
       date: formatDate(new Date())
     };
     const updatedGroups = [...allGroups];
@@ -200,12 +296,27 @@ const GroupPage = () => {
     setAllGroups(updatedGroups);
   };
 
+  const [firstName, lastName] = userEmail?.split('@')[0]?.split('.') ?? ['User', ''];
+
   return (
     <>
       <GridBackground />
-      <Header />
+      <GroupsHeader firstName={firstName} lastName={lastName} />
 
-      {showLatePopup && (
+      {isLoading ? (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          fontSize: '1.2rem',
+          color: '#0077b6'
+        }}>
+          Loading your groups...
+        </div>
+      ) : (
+        <>
+          {showLatePopup && (
         <div className="late-popup">
           <div className="late-popup-content">
             <button className="late-popup-close" onClick={() => setShowLatePopup(false)}>✖</button>
@@ -220,6 +331,17 @@ const GroupPage = () => {
 
       <main className="main-content">
         <div className={`container ${hasInitialized ? 'animate-container' : ''}`}>
+          {userEmail && (
+            <div style={{ 
+              textAlign: 'center', 
+              marginBottom: '20px', 
+              color: '#48cae4',
+              fontSize: '1.2rem',
+              fontWeight: 'bold'
+            }}>
+              Welcome back, {getUserDisplayName(userEmail)}! 👋
+            </div>
+          )}
           <div className={`group-name ${hasInitialized ? 'animate-title' : ''}`}>
             <h2>{groupData.name}</h2>
             <button className="pay-button" onClick={() => setPayModalOpen(true)}>
@@ -302,6 +424,8 @@ const GroupPage = () => {
 
       <ChatbotWidget />
       <Footer />
+        </>
+      )}
     </>
   );
 };

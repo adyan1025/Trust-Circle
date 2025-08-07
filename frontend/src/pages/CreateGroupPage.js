@@ -1,25 +1,58 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
+import GroupsHeader from '../components/GroupsHeader';
 import Footer from '../components/Footer';
 import GridBackground from '../components/GridBackground';
 import '../css/App.css';
 import '../css/GroupPage.css';
+import { useNavigate } from 'react-router-dom';
 
 const CreateGroupPage = () => {
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
   const [groupData, setGroupData] = useState({
     name: '',
     poolSize: '',
+    depositFrequency: '',
+    startDate: '',
     members: []
   });
+
+  const navigate = useNavigate();
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberInitials, setNewMemberInitials] = useState('');
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
   useEffect(() => {
+    const email = localStorage.getItem('userEmail');
+  
+    if (!email) {
+      navigate('/');
+      return;
+    }
+  
+    setUserEmail(email);
+  
     setTimeout(() => {
       setHasInitialized(true);
     }, 100);
-  }, []);
+  
+    const [first, last] = email.split('@')[0].split('.');
+    const initials = (first[0] + last[0]).toUpperCase();
+  
+    const userMember = {
+      name: `${capitalize(first)} ${capitalize(last)}`,
+      initials
+    };
+  
+    setGroupData(prev => {
+      const alreadyExists = prev.members.some(m => m.initials === initials);
+      return alreadyExists ? prev : {
+        ...prev,
+        members: [userMember, ...prev.members]
+      };
+    });
+  }, [navigate]);
+  
 
   const handleGroupNameChange = (e) => {
     setGroupData({
@@ -32,6 +65,20 @@ const CreateGroupPage = () => {
     setGroupData({
       ...groupData,
       poolSize: e.target.value
+    });
+  };
+
+  const handleDepositFrequencyChange = (e) => {
+    setGroupData({
+      ...groupData,
+      depositFrequency: e.target.value
+    });
+  };
+ 
+  const handleStartDateChange = (e) => {
+    setGroupData({
+      ...groupData,
+      startDate: e.target.value
     });
   };
 
@@ -131,25 +178,45 @@ const CreateGroupPage = () => {
     if (groupData.name && groupData.poolSize && groupData.members.length > 0) {
       // Here you would typically save to a database or state management
       console.log('Creating group:', groupData);
-      alert('Group created successfully!');
-      // Reset form or navigate to the new group
-      setGroupData({
-        name: '',
-        poolSize: '',
-        members: []
-      });
+      alert('Group created successfully! Redirecting to your groups...');
+      // Redirect to group page
+      window.location.href = '/group';
     } else {
       alert('Please fill in all fields and add at least one member.');
     }
   };
 
+  // Get user's first name for display
+  const getUserDisplayName = (email) => {
+    const nameMap = {
+      'mustafa.bookwala@sap.com': 'Mustafa',
+      'adyan.chowdhury@sap.com': 'Adyan',
+      'lucas.loepke@sap.com': 'Lucas',
+      'nyle.coleman@sap.com': 'Nyle'
+    };
+    return nameMap[email] || 'User';
+  };
+
+  const [firstName, lastName] = userEmail?.split('@')[0]?.split('.') ?? ['User', ''];
+
   return (
     <>
       <GridBackground />
-      <Header />
+      <GroupsHeader firstName={firstName} lastName={lastName} />
 
       <main className="cg-main-content">
         <div className={`container ${hasInitialized ? 'animate-container' : ''}`}>
+          {userEmail && (
+            <div style={{ 
+              textAlign: 'center', 
+              marginBottom: '20px', 
+              color: '#48cae4',
+              fontSize: '1.2rem',
+              fontWeight: 'bold'
+            }}>
+              Welcome, {getUserDisplayName(userEmail)}! Create your new group below 👇
+            </div>
+          )}
           <div className={`group-name ${hasInitialized ? 'animate-title' : ''}`}>
             <h2>Create New Group</h2>
           </div>
@@ -170,13 +237,39 @@ const CreateGroupPage = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="poolSize">Initial Pool Size ($)</label>
+                <label htmlFor="poolSize">Goal ($)</label>
                 <input
                   type="number"
                   id="poolSize"
                   value={groupData.poolSize}
                   onChange={handlePoolSizeChange}
                   placeholder="Enter pool size"
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="depositFrequency">Deposit Frequency</label>
+                <select
+                  id="depositFrequency"
+                  value={groupData.depositFrequency}
+                  onChange={handleDepositFrequencyChange}
+                  className="form-input"
+                >
+                  <option value="">Select frequency</option>
+                  <option value="Weekly">Weekly</option>
+                  <option value="Bi-Weekly">Bi-Weekly</option>
+                  <option value="Monthly">Monthly</option>
+                </select>
+              </div>
+ 
+              <div className="form-group">
+                <label htmlFor="startDate">Starting Date</label>
+                <input
+                  type="date"
+                  id="startDate"
+                  value={groupData.startDate}
+                  onChange={handleStartDateChange}
                   className="form-input"
                 />
               </div>
@@ -216,12 +309,14 @@ const CreateGroupPage = () => {
                     <div key={index} className="member-item">
                       <span className="member-initials">{member.initials}</span>
                       <span className="member-name">{member.name}</span>
-                      <button 
-                        onClick={() => removeMember(index)}
-                        className="remove-member-btn"
-                      >
-                        ×
-                      </button>
+                      {member.initials !== userEmail?.split('@')[0].split('.').map(n => n[0]).join('').toUpperCase() && (
+                        <button 
+                          onClick={() => removeMember(index)}
+                          className="remove-member-btn"
+                        >
+                          ×
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>

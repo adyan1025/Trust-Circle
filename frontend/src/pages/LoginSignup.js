@@ -2,6 +2,15 @@ import React, { useState } from 'react';
 import Header from '../components/Header';
 import '../css/LoginSignup.css';
 
+const MANUAL_AUTH_MODE = false;
+
+const TEST_USERS = {
+  'mustafa.bookwala@sap.com': { password: 'iammustafa', userID: 1 },
+  'adyan.chowdhury@sap.com': { password: 'iamadyan', userID: 2 },
+  'lucas.loepke@sap.com': { password: 'iamlucas', userID: 3 },
+  'nyle.coleman@sap.com': { password: 'iamnyle', userID: 4 }
+};
+
 const LoginSignup = ({ mode = 'login' }) => {
   const [formData, setFormData] = useState({
     email: '',
@@ -21,6 +30,43 @@ const LoginSignup = ({ mode = 'login' }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Manual authentication mode for local testing
+    if (MANUAL_AUTH_MODE) {
+      if (mode === 'login') {
+        const user = TEST_USERS[formData.email];
+        if (user && user.password === formData.password) {
+          localStorage.setItem('userId', user.userID);
+          localStorage.setItem('userEmail', formData.email);
+          alert('Login successful! Redirecting to your group...');
+          window.location.href = '/group';
+          return;
+        } else {
+          alert('Invalid email or password. Please try again.');
+          return;
+        }
+      } else {
+        // For signup in manual mode, just create a new test user
+        if (TEST_USERS[formData.email]) {
+          alert('An account with this email already exists. Please log in instead.');
+          return;
+        }
+        
+        // Add new user to test users (this is just for demo)
+        const newUserID = Object.keys(TEST_USERS).length + 1;
+        TEST_USERS[formData.email] = { 
+          password: formData.password, 
+          userID: newUserID 
+        };
+        
+        localStorage.setItem('userId', newUserID);
+        localStorage.setItem('userEmail', formData.email);
+        alert('Account created successfully! Welcome to Trust Circle. Redirecting to your group...');
+        window.location.href = '/login';
+        return;
+      }
+    }
+
+    // Original database authentication code
     // const BASE_URL = 'https://trust-circle.cfapps.us10-001.hana.ondemand.com';
     // const url = mode === 'login' ? `${BASE_URL}/login` : `${BASE_URL}/signup`;
 
@@ -57,11 +103,13 @@ const LoginSignup = ({ mode = 'login' }) => {
       if (response.ok) {
         if (mode === 'login') {
           localStorage.setItem('userId', result.userID);
+          localStorage.setItem('userEmail', formData.email);
           alert('Login successful! Redirecting to your group...');
           window.location.href = '/group';
         } else {
           // For signup, the user ID is now returned directly from the signup endpoint
           localStorage.setItem('userId', result.userID);
+          localStorage.setItem('userEmail', formData.email);
           alert('Account created successfully! Welcome to Trust Circle. Redirecting to your group...');
           window.location.href = '/group';
         }
