@@ -37,7 +37,7 @@ const LoginSignup = ({ mode = 'login' }) => {
         };
 
     try {
-      const response = await fetch('/login', {
+      const response = await fetch(`/${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -57,16 +57,28 @@ const LoginSignup = ({ mode = 'login' }) => {
       if (response.ok) {
         if (mode === 'login') {
           localStorage.setItem('userId', result.userID);
+          alert('Login successful! Redirecting to your group...');
           window.location.href = '/group';
         } else {
-          alert(result.message || 'Signup successful');
+          // For signup, the user ID is now returned directly from the signup endpoint
+          localStorage.setItem('userId', result.userID);
+          alert('Account created successfully! Welcome to Trust Circle. Redirecting to your group...');
+          window.location.href = '/group';
         }
       } else {
-        alert(result.message || `${mode} failed`);
+        if (mode === 'login') {
+          alert(result.message || 'Invalid email or password. Please try again.');
+        } else {
+          if (response.status === 409) {
+            alert('An account with this email already exists. Please log in instead.');
+          } else {
+            alert(result.message || 'Signup failed. Please check your information and try again.');
+          }
+        }
       }
     } catch (err) {
       console.error('Fetch failed:', err);
-      alert('Something went wrong.');
+      alert('Network error. Please check your connection and try again.');
     }
   };
 
