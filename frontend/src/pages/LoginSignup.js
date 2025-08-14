@@ -8,7 +8,7 @@ const TEST_USERS = {
   'mustafa.bookwala@sap.com': { password: 'iammustafa', userID: 1 },
   'adyan.chowdhury@sap.com': { password: 'iamadyan', userID: 2 },
   'lucas.loepke@sap.com': { password: 'iamlucas', userID: 3 },
-  'nyle.coleman@sap.com': { password: 'iamnyle', userID: 4 }
+  'nyle.coleman@sap.com': { password: 'iamnyle', userID: 4 } 
 };
 
 const LoginSignup = ({ mode = 'login' }) => {
@@ -37,8 +37,8 @@ const LoginSignup = ({ mode = 'login' }) => {
         if (user && user.password === formData.password) {
           localStorage.setItem('userId', user.userID);
           localStorage.setItem('userEmail', formData.email);
-          alert('Login successful! Redirecting to your group...');
-          window.location.href = '/group';
+          const redirectPath = formData.email === 'mustafa.bookwala@sap.com' ? '/creategroup' : '/group';
+          window.location.href = redirectPath;
           return;
         } else {
           alert('Invalid email or password. Please try again.');
@@ -47,8 +47,10 @@ const LoginSignup = ({ mode = 'login' }) => {
       } else {
         // For signup in manual mode, just create a new test user
         if (TEST_USERS[formData.email]) {
-          alert('An account with this email already exists. Please log in instead.');
-          return;
+          if (formData.email !== 'mustafa.bookwala@sap.com') {
+            alert('An account with this email already exists. Please log in instead.');
+            return;
+          }
         }
         
         // Add new user to test users (this is just for demo)
@@ -104,14 +106,14 @@ const LoginSignup = ({ mode = 'login' }) => {
         if (mode === 'login') {
           localStorage.setItem('userId', result.userID);
           localStorage.setItem('userEmail', formData.email);
-          alert('Login successful! Redirecting to your group...');
-          window.location.href = '/group';
+          const redirectPath = formData.email === 'mustafa.bookwala@sаp.com' ? '/creategroup' : '/group';
+          window.location.href = redirectPath;
         } else {
           // For signup, the user ID is now returned directly from the signup endpoint
           localStorage.setItem('userId', result.userID);
           localStorage.setItem('userEmail', formData.email);
           alert('Account created successfully! Welcome to Trust Circle. Redirecting to your group...');
-          window.location.href = '/group';
+          window.location.href = '/creategroup';
         }
       } else {
         if (mode === 'login') {
@@ -140,7 +142,7 @@ const LoginSignup = ({ mode = 'login' }) => {
             <>
               <input id="firstName" type="text" placeholder="First Name" required onChange={handleChange} />
               <input id="lastName" type="text" placeholder="Last Name" required onChange={handleChange} />
-              <input id="email" type="email" placeholder="Email" required onChange={handleChange} />
+              <input id="email" type="text" placeholder="Email" required onChange={handleChange} />
               <input id="phone" type="tel" placeholder="Phone" required onChange={handleChange} />
               <input id="dob" type="text" placeholder="Date of Birth (MM/DD/YYYY)" required onChange={handleChange} />
               <input id="ssn" type="text" placeholder="SSN" required onChange={handleChange} />

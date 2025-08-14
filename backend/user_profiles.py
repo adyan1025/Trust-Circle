@@ -1,11 +1,19 @@
 from hdbcli import dbapi
 
-# Connect to SAP HANA Cloud
+with open('backend/secrets/db_address.txt', 'r') as file:
+    db_address = file.read()
+with open('backend/secrets/db_port.txt', 'r') as file:
+    db_port = file.read()
+with open('backend/secrets/db_user.txt', 'r') as file:
+    db_user = file.read()
+with open('backend/secrets/db_password.txt', 'r') as file:
+    db_password = file.read()
+
 cc = dbapi.connect(
-    address="f2276c2f-a411-47a5-a9aa-1a60ff2469de.hana.trial-us10.hanacloud.ondemand.com",
-    port=443,
-    user="DBADMIN",
-    password="Password12345"
+    address= db_address,
+    port=db_port,
+    user=db_user,
+    password=db_password
 )
 
 # Create a new user in the table

@@ -20,3 +20,7 @@ node_modules/.cache/
 # Optional: Python server artifacts (if backend is mixed in)
 __pycache__/
 *.pyc
+
+# Explicit
+backend/secrets
+backend/tc-summary.txt

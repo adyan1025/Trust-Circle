@@ -10,7 +10,7 @@ const ChatbotWidget = () => {
     const toggleChatbot = () => setIsOpen(prev => !prev);
 
     useEffect(() => {
-        setMessages([{ text: "Hi! I'm your assistant. How can I help you today?", sender: 'bot' }]);
+        setMessages([{ text: "Hi! I'm Trusty, your virtual AI assistant. I can help you with all things related to Trust Circle, how may I help you today?", sender: 'bot' }]);
     }, []);
 
     // Scroll to bottom whenever messages change
@@ -53,7 +53,7 @@ const ChatbotWidget = () => {
     return (
         <div className="chatbot-container">
             <div className={`chatbot-panel ${isOpen ? 'open' : ''}`}>
-                <div className="chatbot-header">Chatbot</div>
+                <div className="chatbot-header">Trusty Assistant</div>
                 <div className="chatbot-messages">
                     {messages.map((msg, index) => (
                         <div

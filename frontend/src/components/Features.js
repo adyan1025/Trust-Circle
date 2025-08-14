@@ -50,8 +50,8 @@ const Features = () => {
         />
         <Feature 
           icon="💰"
-          title="No Interest"
-          description="Absolutely zero interests on loans."
+          title="Interest Free Loans"
+          description="Borrow without worrying about accruing fees."
         />
         <Feature 
           icon="⚡"

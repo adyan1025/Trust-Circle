@@ -2,12 +2,20 @@ from hdbcli import dbapi
 import random
 import string
 
-# Connect to SAP HANA Cloud
+with open('backend/secrets/db_address.txt', 'r') as file:
+    db_address = file.read()
+with open('backend/secrets/db_port.txt', 'r') as file:
+    db_port = file.read()
+with open('backend/secrets/db_user.txt', 'r') as file:
+    db_user = file.read()
+with open('backend/secrets/db_password.txt', 'r') as file:
+    db_password = file.read()
+
 cc = dbapi.connect(
-    address="f2276c2f-a411-47a5-a9aa-1a60ff2469de.hana.trial-us10.hanacloud.ondemand.com",
-    port=443,
-    user="DBADMIN",
-    password="Password12345"
+    address= db_address,
+    port=db_port,
+    user=db_user,
+    password=db_password
 )
 
 def generate_group_code(length=12):
@@ -53,7 +61,7 @@ def get_valid_members(emails):
         if cur.fetchone():
             valid.append(email)
         else:
-            print(f"⚠️ Skipping invalid email: {email}")
+            print(f"Skipping invalid email: {email}")
 
     cur.close()
     return valid
@@ -114,11 +122,10 @@ def get_all_groups():
         for col, val in zip(col_names, row):
             print(f"{col}: {val}")
     if not rows:
-        print("⚠️ No groups found.")
+        print("No groups found.")
     cur.close()
 
 if __name__ == "__main__":
-    # Uncomment this once to create the table, then keep it commented
     # create_groups_table()
 
     create_group(
